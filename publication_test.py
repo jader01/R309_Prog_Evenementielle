@@ -4,52 +4,58 @@
 #
 ###########################################################################
 
-class Publication : #creation de la classe "mere"
+class Article : #creation de la classe "mere"
     
-    def __init__(self, reference, autheur, titre, annee): #on initalise la class avec ces attribus de base
+    def __init__(self, autheur, titre, annee, journal, vol, nombre, page, mois, notes): #on initalise la class avec ces attribus de base
         #print('lancement initialisation'
-        self.ref = reference
         self.author = autheur
         self.title = titre
+        self.journal = journal
         self.year = annee
+        self.volume = vol
+        self.number = nombre
+        self.pages = page
+        self.month = mois
+        self.notes = notes
+        
 
     def printPubli(self): # affichage de la publication
-        if self.ref is not None :
-            print(self.ref)
+        if self.author is not None :
             print(self.author)
             print(self.title)
+            print(self.journal)
             print(self.year)
+            print(self.volume)
+            print(self.number)
+            print(self.pages)
+            print(self.month)
+            print(self.notes)
     
-    def Addpubli(self, refchoisi, autheurchoisi, titrechoisi, anneechoisi):
-        self.ref.append(refchoisi)
+    def Addpubli(self, autheurchoisi, titrechoisi, anneechoisi):
         self.author.append(autheurchoisi)
         self.title.append(titrechoisi)
         self.year.append(anneechoisi)
 
-class Book(Publication) :
+class Book(Article) :
     
-    def __init__(self, publi, vol, serie, adress, editeur, mois, notes):
+    def __init__(self, publi, serie, adress, editeur):
         self.publisher = publi
-        self.volume = vol
         self.series = serie
         self.address = adress
         self.edition = editeur
-        self.month = mois
-        self.note = notes
 
     def printBook(self):
         if self.ref is not None :
             print(self.ref)
 
-class Improceeding(Publication) :
+class Improceeding(Book) :
     
-    def __init__(self, titredulivre, publieur, page, orga):
+    def __init__(self, titredulivre, editeur, orga):
         self.booktitle = titredulivre
-        self.publisher = publieur
-        self.pages = page
+        self.editor = editeur
         self.organization = orga
 
-class phdthesis(Publication):
+class phdthesis(Improceeding):
 
     def __init__(self, ecole, type) :
         self.school = ecole
@@ -65,9 +71,9 @@ class phdthesis(Publication):
 #
 ################################################################
 
-publi1 = Publication("2", "jean", "revus ", 2004)
+publi1 = Article("jean", "test", 2004, "le figaro", 12, 2, "12 - 15", "mars", "test de revue1")
 publi1.printPubli()
 
-publi2 = Publication()
-publi2.Addpubli("3", "eichiro oda", "one piece", 2003)
-publi2.printPubli()
+#publi2 = Article()
+#publi2.Addpubli("3", "eichiro oda", "one piece", 2003)
+#publi2.printPubli()
