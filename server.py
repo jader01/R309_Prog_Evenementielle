@@ -39,6 +39,7 @@ class Article:
         print(f"Mois : {self.month}")
         print(f"Notes : {self.notes}")
 
+ 
 
 class Book(Article):
     def __init__(self, author, title, year, journal, volume, number, pages, month, notes, publisher, series, address, edition):
@@ -56,7 +57,7 @@ class Book(Article):
         print(f"Édition : {self.edition}")
 
 
-# Fonction de recherche globale
+# Fonction de recherche 
 def search(critere, valeur):
     resultats = []  #les objets qui répondent aux critères de recherche
     for elm in search_global: # )arcourt chaque élément (elm) de la liste search_global qui contient toutes éléments d'objets des classes
@@ -82,3 +83,6 @@ for elm in resultats:
         elm.printBook()  # Affiche un livre
     elif isinstance(elm, Article):
         elm.printPubli()  # Affiche un article
+
+
+
