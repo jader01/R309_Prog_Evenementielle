@@ -1,11 +1,10 @@
 ############################################################################
 #
-#                           Import des librairie utiles
+#      creation d'une variable pour les résultat des recherches
 #
 ###########################################################################
 
-#import de la librairie pour la gestion de socket
-import socket
+search_global = []  
 
 ############################################################################
 #
@@ -13,133 +12,73 @@ import socket
 #
 ###########################################################################
 
-class Article : #creation de la classe "mere"
-    
-    def __init__(self, autheur, titre, annee, journal, vol, nombre, page, mois, notes): #on initalise la class avec ces attribus de base
-        #print('lancement initialisation'
-        self.author = autheur
-        self.title = titre
+
+class Article:
+    def __init__(self, author, title, year, journal, volume, number, pages, month, notes):
+        self.author = author
+        self.title = title
+        self.year = year
         self.journal = journal
-        self.year = annee
-        self.volume = vol
-        self.number = nombre
-        self.pages = page
-        self.month = mois
+        self.volume = volume
+        self.number = number
+        self.pages = pages
+        self.month = month
         self.notes = notes
-        
 
-    def printPubli(self): # affichage de la publication
-        if self.author is not None :
-            print(self.author)
-            print(self.title)
-            print(self.journal)
-            print(self.year)
-            print(self.volume)
-            print(self.number)
-            print(self.pages)
-            print(self.month)
-            print(self.notes)
-    
-    def Addpubli(self, autheurchoisi, titrechoisi, anneechoisi):
-        self.author.append(autheurchoisi)
-        self.title.append(titrechoisi)
-        self.year.append(anneechoisi)
-        
+        # Ajoute automatiquement l'instance à la liste globale
+        search_global.append(self)
 
-class Book(Article) :
-    
-    def __init__(self, publi, serie, adress, editeur):
-        self.publisher = publi
-        self.series = serie
-        self.address = adress
-        self.edition = editeur
+    def printPubli(self):
+        print(f"Auteur : {self.author}")
+        print(f"Titre : {self.title}")
+        print(f"Journal : {self.journal}")
+        print(f"Année : {self.year}")
+        print(f"Volume : {self.volume}")
+        print(f"Numéro : {self.number}")
+        print(f"Pages : {self.pages}")
+        print(f"Mois : {self.month}")
+        print(f"Notes : {self.notes}")
+
+
+class Book(Article):
+    def __init__(self, author, title, year, journal, volume, number, pages, month, notes, publisher, series, address, edition):
+        super().__init__(author, title, year, journal, volume, number, pages, month, notes)
+        self.publisher = publisher
+        self.series = series
+        self.address = address
+        self.edition = edition
 
     def printBook(self):
-        if self.ref is not None :
-            print(self.ref)
-
-class Improceeding(Book) :
-    
-    def __init__(self, titredulivre, editeur, orga):
-        self.booktitle = titredulivre
-        self.editor = editeur
-        self.organization = orga
-
-class phdthesis(Improceeding):
-
-    def __init__(self, ecole, type) :
-        self.school = ecole
-        self.type = type
+        self.printPubli()
+        print(f"Éditeur : {self.publisher}")
+        print(f"Série : {self.series}")
+        print(f"Adresse : {self.address}")
+        print(f"Édition : {self.edition}")
 
 
-###############################################################
-#
-#   gestion 
-#
-################################################################
-
-publi1 = Article("jean", "test", 2004, "le figaro", 12, 2, "12 - 15", "mars", "test de revue1")
-publi1.printPubli()
-
-#publi2 = Article()
-#publi2.Addpubli("3", "eichiro oda", "one piece", 2003)
-#publi2.printPubli()
+# Fonction de recherche globale
+def search(critere, valeur):
+    resultats = []  #les objets qui répondent aux critères de recherche
+    for elm in search_global: # )arcourt chaque élément (elm) de la liste search_global qui contient toutes éléments d'objets des classes
+        if hasattr(elm, critere) and getattr(elm, critere) == valeur:
+            resultats.append(elm)
+    return resultats
 
 
-############################################################################
-#
-#                            Gestion de connexion
-#
-###########################################################################
+# Exemple d'utilisation
+publi1 = Article("Jean Dupont", "Un Article Test", "2023", "Le Monde", 1, 1, "1-10", "Janvier", "ceci est une note")
+publi2 = Article("Alice Martin", "Un Second Article", "2022", "Science Today", 2, 3, "15-20", "Février", "Autre note")
+livre = Book("Jean Dupont", "Un Livre Test", "2023", "Le Monde", 1, 1, "1-10", "Janvier", "livre de jean ayant pour titre test", "michel lafon", "libre jeunesse", "Paris", "1ère Édition")
+
+publi3 = Article("Stephen King", "Ca", "2004", "Horror", "1", "1", "1-200", "Otobre", "Livre d'horreur")
 
 
-#!/usr/bin/env python3
-# Serveur TCP Multi Thread
-import socket
-import os
-from _thread import *
-ServerSocket = None
-host = '127.0.0.1'
-port = 9090
-clients = []
-nbclients = 0
-numclient = None
+# Recherche globale
+resultats = search(input("Quel type de donner souhaiter vous rechercher : "), input("la donner a recherche "))
 
-def main():
-    global nbclients
-    ServerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    ServerSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    try:
-        ServerSocket.bind((host, port))
-    except socket.error as e:
-        print(str(e))
-    finally:
-        print('En attente de connexion...')
-        ServerSocket.listen(5)
-    while True:
-        client, address = ServerSocket.accept()
-        print('Connecter à : ' + address[0] + ':' + str(address[1]))
-        client.send(str.encode(str(nbclients)))
-        clients.append(client)
-        print("Liste des clients : ", clients)
-        start_new_thread(threaded_client, (client, ))
-        nbclients+=1
-        print('Nombre de thread : ' + str(nbclients))
-    
-def threaded_client(connection):
-    global nbclients
-    print("connection", connection)
-    while True:
-        data = connection.recv(2048)
-        reply = '\n>>' + data.decode('utf-8') + '\n'
-        for client in clients:
-            client.sendall(str.encode(reply))
-        if data == "quit": # Bogue sur le quit !
-            numclient = int(connection.recv(2048))
-            clients[numclient].close()
-            clients.pop(numclient)
-            nbclients-=1
-
-if __name__== "__main__":
-    main()
-
+print("\nRésultats de la recherche globale :")
+for elm in resultats:
+    if isinstance(elm, Book):
+        elm.printBook()  # Affiche un livre
+    elif isinstance(elm, Article):
+        elm.printPubli()  # Affiche un article
