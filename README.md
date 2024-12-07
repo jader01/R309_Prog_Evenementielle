@@ -47,11 +47,26 @@ Ce programme gère l'interface utilisateur et la communication avec le serveur. 
   - Mise à jour des widgets en fonction des événements (résultats de recherche, ajout d'un article).  
 - **Connexion TCP/IP** : Établissement et gestion de la connexion avec le serveur.  
 
+
+## Comment tester le programme  
+
+1. **Lancer le serveur :**  
+   - Exécutez le fichier [serveur.py](server.py).  
+   - Cela démarre le serveur et initialise la gestion des publications ainsi que la connexion TCP côté serveur.  
+
+2. **Lancer le client :**  
+   - Exécutez le fichier [client.py](client.py).  
+   - Cela ouvre l'interface graphique Tkinter et connecte le client au serveur.  
+
+3. **Utiliser l'interface graphique :**  
+   - **Afficher les publications :** Cliquez sur le bouton **Afficher publication** pour récupérer et afficher toutes les publications disponibles.  
+   - **Afficher les livres :** Cliquez sur le bouton **Afficher livre** pour afficher uniquement les livres.  
+   - **Effectuer une recherche :**  
+     - Cliquez sur le bouton **Recherche**.  
+     - Une fenêtre s'ouvre pour indiquer le critère de recherche (par exemple : `author` pour rechercher par auteur, `year` pour rechercher par année, ou `title` pour rechercher par titre).  
+     - Une seconde fenêtre permet de saisir la valeur à rechercher.  
+   - **Ajouter une publication :**  
+     - Cliquez sur **Ajouter** en haut à droite, puis sur **Ajouter article**.  
+     - Une série de fenêtres apparaîtront pour demander les informations nécessaires (par exemple : nom de l'auteur, titre, année, etc.). Remplissez ces champs pour ajouter un nouvel article.  
+
 ---
-
-## Fonctionnalités Avancées (Bonus)  
-
-Pour enrichir le projet, les fonctionnalités suivantes peuvent être implémentées :  
-- Ajout de sous-classes spécifiques aux publications (ex. : articles scientifiques, livres, rapports).  
-- Affichage amélioré des résultats de recherche (par exemple, avec des **onglets** ou des **fenêtres flottantes**).  
-- Export avancé des résultats avec des options de tri ou de filtrage.  
