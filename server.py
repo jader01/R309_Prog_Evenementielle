@@ -149,18 +149,20 @@ def threaded_client(connection):
         
         #Fonction affichage bibli
         if commande["fonction"] == "bibli": #ici quand le serveur va détecter que le client lui aura pour clef associé a 'fonction' -> "bibli" il excutera la suite
+            allpubli = []
             for elm in publications: # on parcours tous les élément
-                elm.printPubli() #ici on apelle la fonction print publication pour 
-                mess["resultat"] = (elm.printPubli()) # si dans le message du client il y a une variable qui s'apl "resulata" on apl la fonction print ici
-                connection.sendall(json.dumps(mess).encode('utf-8')) #et on envois au client en json
+                allpubli.append(elm.printPubli()) #ici on apelle la fonction print publication pour 
+            mess["resultat"] = allpubli # si dans le message du client il y a une variable qui s'apl "resulata" on apl la fonction print ici
+            connection.sendall(json.dumps(mess).encode('utf-8')) #et on envois au client en json
 
 
         if commande["fonction"] == "printBook":
+            allBook = []
             for elm in publications:
                 if hasattr(elm, "printBook"):  # Vérifie si l'objet possède la méthode printBook
-                    elm.printBook()
-                    mess["resultat"] = elm.printBook()
-                    connection.sendall(json.dumps(mess).encode('utf-8'))
+                    allBook.append(elm.printBook())
+            mess["resultat"] = elm.printBook()
+            connection.sendall(json.dumps(mess).encode('utf-8'))
         
         #Commande de recherche
         if commande["fonction"] == "search":
@@ -190,15 +192,14 @@ def threaded_client(connection):
                 connection.sendall(json.dumps(mess).encode('utf-8'))
             else:
                 mess["error"] = "Missing required fields"
-                connection.sendall(json.dumps(mess).encode('utf-8'))
-
-                
+                connection.sendall(json.dumps(mess).encode('utf-8'))      
                     
-        if data == "quit": # Bogue sur le quit !
-            numclient = int(connection.recv(2048))
-            clients[numclient].close()
-            clients.pop(numclient)
-            nbclients-=1
+        if commande["fonction"] == "quit":
+            connection.close()
+            clients.remove(connection)
+            nbclients -= 1
+            print('Client déconnecté. Nombre de clients restants : ' + str(nbclients))
+            break
 
 if __name__== "__main__":
     main()
