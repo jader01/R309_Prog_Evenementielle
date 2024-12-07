@@ -1,187 +1,170 @@
+
 ############################################################################
 #
 #                        Import lib souhaiter
 #
 ###########################################################################
 
+#import la librairie pour la création de la fenetre
+from tkinter.simpledialog import askstring
+from tkinter import *
+
+#import de la librairie pour la gestion de socket
+import socket
+
+#Import des librairie souhaiter
 import socket #         permet de gerer les connexion réseau
 from _thread import * # permet la gestion des thread
 import json #           pour la gestion des datas en json
 
-############################################################################
-#
-#      creation d'une variable pour les résultat des recherches
-#
-###########################################################################
-
-search_global = []  
 
 ############################################################################
 #
-# Class pour stockage données
+#                        Gestion de la connexion
 #
 ###########################################################################
 
-
-class Article:
-    def __init__(self, author, title, year, journal, volume, number, pages, month, notes):
-        self.author = author
-        self.title = title
-        self.year = year
-        self.journal = journal
-        self.volume = volume
-        self.number = number
-        self.pages = pages
-        self.month = month
-        self.notes = notes
-
-       
-        search_global.append(self)
-
-    def printPubli(self):
-        print(f"Auteur : {self.author}")
-        print(f"Titre : {self.title}")
-        print(f"Journal : {self.journal}")
-        print(f"Année : {self.year}")
-        print(f"Volume : {self.volume}")
-        print(f"Numéro : {self.number}")
-        print(f"Pages : {self.pages}")
-        print(f"Mois : {self.month}")
-        print(f"Notes : {self.notes}")
-        print("\n")
-        
-        return (self.author, self.title, self.year, self.journal, self.volume, self.number, self.pages, self.month, self.notes)
-    
-        # Recherche globale
-    def search(critere, valeur):
-        resultats = []  #les objets qui répondent aux critères de recherche
-        for elm in search_global: # parcourt chaque élément (elm) de la liste search_global qui contient toutes éléments d'objets des classes
-            if hasattr(elm, critere) and getattr(elm, critere) == valeur:
-                resultats.append(elm)
-        return resultats
-
- 
-
-class Book(Article):
-    def __init__(self, author, title, year, journal, volume, number, pages, month, notes, publisher, series, address, edition):
-        super().__init__(author, title, year, journal, volume, number, pages, month, notes)
-        self.publisher = publisher
-        self.series = series
-        self.address = address
-        self.edition = edition
-
-        search_global.append(self)
-
-        
-
-    def printBook(self):
-        self.printPubli()
-        print(f"Éditeur : {self.publisher}")
-        print(f"Série : {self.series}")
-        print(f"Adresse : {self.address}")
-        print(f"Édition : {self.edition}")
-        print("\n")
-
-        return(self.publisher, self.series, self.address, self.edition)
-
-
-
-
-
-# Exemple d'utilisation
-publications = [
-Article("Jean Dupont", "Un Article Test", "2023", "Le Monde", 1, 1, "1-10", "Janvier", "ceci est une note"),
-Article("Alice Martin", "Un Second Article", "2022", "Science Today", 2, 3, "15-20", "Février", "Autre note"),
-Article("Stephen King", "Ca", "2004", "Horror", "1", "1", "1-200", "Otobre", "Livre d'horreur"),
-Book("Jean Dupont", "Un Livre Test", "2023", "Le Monde", 1, 1, "1-10", "Janvier", "livre de jean ayant pour titre test", "michel lafon", "libre jeunesse", "Paris", "1ère Édition")
-]
-
-
-############################################################################
-#
-#                            Gestion de connexion 
-#                           Serveur TCP Multi Thread
-#                       repris du TD mais avec commentaire
-#
-###########################################################################
-
-
-ServerSocket = None #   initialisation de la variable socket (du serveur)
+#Déclaration des varibale que nous allons utiliser plus bas dans notre server :
+ClientSocket = None #   initialisation de la variable socket (du serveur)
 host = '127.0.0.1' #    initialisation de l'ip du server (ici 127.0.0.1 cad Local host)
-port = 9090 #           le port sur le quel le serveur ecoute les connexions
-clients = [] #          liste permetant de stoquer les connexions des client
-nbclients = 0 #         compteur du nbr de client
-numclient = None
+port = 9090 #           le port sur le quel le client se connecte au serveur
+myNumber = 0 #          identifie le client lors de la déconnexion.
 
-####
+
 def main():
-    global nbclients
-    ServerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) #          creation d'un socket TCP
-    ServerSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)#         Permet de réutiliser l'adresse et le port immédiatement après une fermeture du socket
+    global ClientSocket
+    ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)#          creation d'un socket TCP
+    ClientSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)#        Permet de réutiliser l'adresse et le port immédiatement après une fermeture du socket
     try:
-        ServerSocket.bind((host, port))#                                        Lier l'adresse IP et le port au socket
+        ClientSocket.connect((host, port))#              à                      connexion serv en utilisant le socket créé si dessus
     except socket.error as e:
         print(str(e))
     finally:
-        print('En attente de connexion...')
-        ServerSocket.listen(5)#                                                 Le serveur commence à écouter les connexions entrantes, avec une limite de 5 connexions en attente.
-    # Attente de connexion + creation des threads :
+        print("connection au serveur réussi !")
+        myNumber = int(ClientSocket.recv(1024))
+        print("nombre de client reçu : ", myNumber)
+    
+    # Créer la fenêtre
+    window = MyWindow(ClientSocket)
+
+    # Démarrer le thread serveur en passant la zone de texte de la fenêtre
+    start_new_thread(threaded_server, (ClientSocket, myNumber, window.text_zone))
+
+    # Lancer la boucle principale de la fenêtre
+    window.mainloop()
+
+
+def threaded_server(connection, num, text_zone):
     while True:
-        client, address = ServerSocket.accept() #                               Le serveur attend une connexion entrante, puis l'accepte
-        print('Connecter à : ' + address[0] + ':' + str(address[1]))
-        client.send(str.encode(str(nbclients)))#                                Envoie le nombre de clients connectés à ce client
-        clients.append(client)#                                                 Ajoute la connexion client à la liste des clients.
-        print("Liste des clients : ", clients)# Lance un thread pour gérer ce client spécifiquement en appelant la fonction threaded_client (ci dessous)
-        start_new_thread(threaded_client, (client, ))
-        nbclients+=1
-        print('Nombre de thread : ' + str(nbclients))
+        try:
+            response = connection.recv(1024) #connexion au serv
+            decode_rep = json.loads(response.decode('utf-8')) #on decode le json pour le re mettre sous forme de dico
+            messages = decode_rep["resultat"] #on associe a la variable message ce que l'on viens de décoder ci dessus
+
+            # Utiliser after pour mettre à jour la zone de texte dans le thread principal
+            text_zone.after(0, lambda: text_zone.delete('1.0', END)) # Effacer le texte existant
+            for message in messages :
+                text_zone.after(0, lambda: text_zone.insert(END, f"{message}\n"))
+            text_zone.after(0, lambda : text_zone.see(END))
+            
+        except Exception as e:
+            print(f"Erreur dans le thread serveur : {e}")
+            break
 
 
-#Gestion des clients :
-def threaded_client(connection):
-    global nbclients
-    print("connection", connection)
-    while True: #pour l'attente de connection
-        data = connection.recv(2048) #on associe les données que l'on va recevoir suite a la connnextion a la variable data
-        commande = json.loads(data.decode()) #on encode les data en json
+class MyWindow(Tk): #classe pour l'interface graphique
+    def __init__(self, client_socket):
+        Tk.__init__(self)
+        self.client_socket = client_socket
+
+        self.geometry("500x400")
+        self.title("R309 Prog even")
+
+        #label_t = Label(self, text="Bibliothèque:\n")
+        #label_t.pack()
+
+        button_bibli = Button(self, text="Afficher publication", command=self.printBibli)
+        button_bibli.pack()
+
+        button_livre = Button(self, text="Afficher livre", command=self.printLivre)
+        button_livre.pack()
+
+        button_add = Button(self, text="Recherche", command=self.recherche)
+        button_add.pack()
+
+        menubar = Menu(self)
+
+        menu1 = Menu(menubar, tearoff=0)
+        menu1.add_command(label="Ajouter Publi", command=self.addArt)
+        menu1.add_command(label="Ajouter Livre", command=self.addBook)
+
+        menubar.add_cascade(label="Ajouter", menu=menu1)
+        self.config(menu=menubar)
+
+
+
+        boutonfermer = Button(self, text="quitter", command=self.quit)  # A FAIRE : CREER UN BOUTON FERMETURE CFONNEXION
+        boutonfermer.pack(side=BOTTOM)
+
+
+        # Ajouter la zone de texte comme un attribut de l'objet
+        self.text_zone = Text(self, height=10, width=50)
+        self.text_zone.pack()
+
+    def printBibli(self):
+        message = {}
+        message["fonction"] = "bibli"
+        message = json.dumps(message)
+        self.client_socket.sendall(str.encode(message))
+
+
+    def printLivre(self):
+        message = {}
+        message["fonction"] = "printBook"
+        message = json.dumps(message)
+        self.client_socket.sendall(str.encode(message))
+    
+    def recherche(self):
+        critere = askstring("Input", "Critère de recherche (author, title, year, ...):")
+        search = askstring("Input", "Que voulez vous rechercher ?")
+        message = { 
+            "fonction": "search", 
+            "critere": critere, 
+            "valeur": search 
+            }
+       
+        message = json.dumps(message)
+        self.client_socket.sendall(str.encode(message))
+    
+    def addArt(self):
+        auteur= askstring("Input", "Ajouter le nom de l'auteur")
+        titre = askstring("Input", "Ajouter le titre")
+        year = askstring("Input", "Ajouter l'anéee")
+        journal = askstring("Input", "Ajouteur le nom du journal dans le quel est publier l'article")
+        volume= askstring("Input", "Ajouter le nom du volume")
+        number= askstring("Input", "Ajouter le nom du volume")
+        pages = askstring("Input", "Ajouter le nombre de page")
+        mois= askstring("Input", "Ajouter le mois")
+        note= askstring("Input", "Ajouter une note")
+        message = {
+            "fontion": "addArt",
+            "author": auteur,
+            "title": titre, 
+            "year": year,
+            "journal": journal,
+            "volume": volume,
+            "number": number,
+            "pages": pages,
+            "month": mois,
+            "notes": note
+        }
+        message = json.dumps(message)
+        self.client_socket.sendall(str.encode(message))
+
+    def addBook():
+        print("en cours.....")
         
-        mess = {} #dictionnaire qui sera ensuite encoder en json pour le transfert
         
-        #Fonction affichage bibli
-        if commande["fonction"] == "bibli": #ici quand le serveur va détecter que le client lui aura pour clef associé a 'fonction' -> "bibli" il excutera la suite
-            for elm in publications: # on parcours tous les élément
-                elm.printPubli() #ici on apelle la fonction print publication pour 
-                mess["resultat"] = (elm.printPubli()) # si dans le message du client il y a une variable qui s'apl "resulata" on apl la fonction print ici
-                connection.sendall(json.dumps(mess).encode('utf-8')) #et on envois au client en json
 
-
-        if commande["fonction"] == "printBook":
-            for elm in publications:
-                if hasattr(elm, "printBook"):  # Vérifie si l'objet possède la méthode printBook
-                    elm.printBook()
-                    mess["resultat"] = elm.printBook()
-                    connection.sendall(json.dumps(mess).encode('utf-8'))
-        
-        #Commande de recherche
-        if commande["fonction"] == "search":
-            critere = commande.get("critere")
-            valeur = commande.get("valeur")
-            results = Article.search(critere, valeur)
-            mess["resultat"] = [elm.printPubli() for elm in results]
-            connection.sendall(json.dumps(mess).encode('utf-8'))
-
-        #Commande add :
-        if commande["fonction"] == "addArt":
-                newArticle =Article(commande["author"], commande["title"], commande["year"], commande["journal"], commande["volume"], commande["number"], commande["pages"], commande["month"], commande["notes"])
-                mess["resultat"] = [elm.printPubli() for elm in newArticle]
-                connection.sendall(json.dumps(mess).encode('utf-8'))
-                
-                    
-        if data == "quit": # Bogue sur le quit !
-            numclient = int(connection.recv(2048))
-            clients[numclient].close()
-            clients.pop(numclient)
-            nbclients-=1
-
-if __name__== "__main__":
+if __name__ == "__main__":
     main()
