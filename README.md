@@ -4,11 +4,6 @@
 
 L’objectif de ce projet est de comprendre et d'implémenter la **programmation par événements**. Il s'agit de concevoir un programme en Python capable de déclencher des fonctions *callback* en réponse à des événements spécifiques. Ce projet combine plusieurs aspects, dont l'interface graphique, les communications réseau, et la gestion du multithreading.  
 
-### Consignes du projet  
-- **Langage** : Le projet sera entièrement développé en Python. Le code devra être **commenté** pour en expliquer les principales étapes.  
-- **Documentation** : En plus du code, un rapport décrivant la logique des programmes devra être fourni. Ce rapport mettra en avant l'organisation du projet et l'apport de chaque fonctionnalité.  
-- **Présentation** : Une courte démonstration du projet sera réalisée en fin de développement.  
-
 ### Travail réalisé
 
 L'application à développer permet de consulter et gérer des **références bibliographiques**. Ce projet comprend les étapes suivantes :  
