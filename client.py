@@ -147,7 +147,7 @@ class MyWindow(Tk): #classe pour l'interface graphique
         mois= askstring("Input", "Ajouter le mois")
         note= askstring("Input", "Ajouter une note")
         message = {
-            "fontion": "addArt",
+            "fonction": "addArt",
             "author": auteur,
             "title": titre, 
             "year": year,
