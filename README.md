@@ -51,7 +51,7 @@ Ce programme gère l'interface utilisateur et la communication avec le serveur. 
 ## Comment tester le programme  
 
 1. **Lancer le serveur :**  
-   - Exécutez le fichier [serveur.py](server.py).  
+   - Exécutez le fichier [server.py](server.py).  
    - Cela démarre le serveur et initialise la gestion des publications ainsi que la connexion TCP côté serveur.  
 
 2. **Lancer le client :**  
