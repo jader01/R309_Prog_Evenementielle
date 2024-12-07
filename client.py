@@ -103,7 +103,7 @@ class MyWindow(Tk): #classe pour l'interface graphique
 
 
 
-        boutonfermer = Button(self, text="quitter", command=self.quit)  # A FAIRE : CREER UN BOUTON FERMETURE CFONNEXION
+        boutonfermer = Button(self, text="quitter", command=self.quitclient)  # A FAIRE : CREER UN BOUTON FERMETURE CFONNEXION
         boutonfermer.pack(side=BOTTOM)
 
 
@@ -119,10 +119,11 @@ class MyWindow(Tk): #classe pour l'interface graphique
 
 
     def printLivre(self):
-        message = {}
-        message["fonction"] = "printBook"
+        message = {"fonction": "printBook"}
         message = json.dumps(message)
         self.client_socket.sendall(str.encode(message))
+
+
     
     def recherche(self):
         critere = askstring("Input", "Critère de recherche (author, title, year, ...):")
@@ -161,8 +162,45 @@ class MyWindow(Tk): #classe pour l'interface graphique
         message = json.dumps(message)
         self.client_socket.sendall(str.encode(message))
 
-    def addBook():
-        print("en cours.....")
+    def addBook(self):
+        auteur = askstring("Input", "Ajouter le nom de l'auteur")
+        titre = askstring("Input", "Ajouter le titre")
+        year = askstring("Input", "Ajouter l'année")
+        journal = askstring("Input", "Ajouter le nom du journal dans lequel est publié le livre")
+        volume = askstring("Input", "Ajouter le nom du volume")
+        number = askstring("Input", "Ajouter le numéro")
+        pages = askstring("Input", "Ajouter le nombre de pages")
+        mois = askstring("Input", "Ajouter le mois")
+        note = askstring("Input", "Ajouter une note")
+        publisher = askstring("Input", "Ajouter l'éditeur")
+        series = askstring("Input", "Ajouter la série")
+        address = askstring("Input", "Ajouter l'adresse")
+        edition = askstring("Input", "Ajouter l'édition")
+        message = {
+            "fonction": "addBook",
+            "author": auteur,
+            "title": titre,
+            "year": year,
+            "journal": journal,
+            "volume": volume,
+            "number": number,
+            "pages": pages,
+            "month": mois,
+            "notes": note,
+            "publisher": publisher,
+            "series": series,
+            "address": address,
+            "edition": edition
+        }
+        message = json.dumps(message)
+        self.client_socket.sendall(str.encode(message))
+
+    def quitclient(self):
+        message = {"fonction": "quit"}
+        message = json.dumps(message)
+        self.client_socket.sendall(str.encode(message))
+        self.client_socket.close()
+        self.destroy()
         
         
 
