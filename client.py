@@ -36,7 +36,7 @@ def main():
     ClientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)#          creation d'un socket TCP
     ClientSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)#        Permet de réutiliser l'adresse et le port immédiatement après une fermeture du socket
     try:
-        ClientSocket.connect((host, port))#              à                      connexion serv en utilisant le socket créé si dessus
+        ClientSocket.connect((host, port))#                                    connexion serv en utilisant le socket créé si dessus
     except socket.error as e:
         print(str(e))
     finally:
@@ -45,7 +45,7 @@ def main():
         print("nombre de client reçu : ", myNumber)
     
     # Créer la fenêtre
-    window = MyWindow(ClientSocket)
+    window = MyWindow(ClientSocket) #pour la fentre client
 
     # Démarrer le thread serveur en passant la zone de texte de la fenêtre
     start_new_thread(threaded_server, (ClientSocket, myNumber, window.text_zone))
@@ -83,62 +83,63 @@ class MyWindow(Tk): #classe pour l'interface graphique
         #label_t = Label(self, text="Bibliothèque:\n")
         #label_t.pack()
 
-        button_bibli = Button(self, text="Afficher publication", command=self.printBibli)
+        button_bibli = Button(self, text="Afficher article", command=self.printBibli) #bouton affichage des article
         button_bibli.pack()
 
-        button_livre = Button(self, text="Afficher livre", command=self.printLivre)
+        button_livre = Button(self, text="Afficher livre", command=self.printLivre) #bouton affichage des livre
         button_livre.pack()
 
-        button_add = Button(self, text="Recherche", command=self.recherche)
+        button_add = Button(self, text="Recherche", command=self.recherche) #bouton recherche
         button_add.pack()
 
-        menubar = Menu(self)
+        menubar = Menu(self) #bare de menu
 
         menu1 = Menu(menubar, tearoff=0)
-        menu1.add_command(label="Ajouter Publi", command=self.addArt)
+        menu1.add_command(label="Ajouter Article", command=self.addArt) #onglet de l'ajout d'un article
         menu1.add_command(label="Ajouter Livre", command=self.addBook)
 
-        menubar.add_cascade(label="Ajouter", menu=menu1)
+        menubar.add_cascade(label="Ajouter", menu=menu1)#le nom du menu
         self.config(menu=menubar)
 
 
 
-        boutonfermer = Button(self, text="quitter", command=self.quitclient)  # A FAIRE : CREER UN BOUTON FERMETURE CFONNEXION
+        boutonfermer = Button(self, text="quitter", command=self.quitclient)  # bouton fermeture de co
         boutonfermer.pack(side=BOTTOM)
 
 
         # Ajouter la zone de texte comme un attribut de l'objet
-        self.text_zone = Text(self, height=10, width=50)
+        self.text_zone = Text(self, height=10, width=50) #zone de texte
         self.text_zone.pack()
 
     def printBibli(self):
         message = {}
-        message["fonction"] = "bibli"
+        message["fonction"] = "bibli" #fonction affichage des article
         message = json.dumps(message)
         self.client_socket.sendall(str.encode(message))
 
 
     def printLivre(self):
-        message = {"fonction": "printBook"}
+        message = {"fonction": "printBook"} #de meme pour affichage des livre
         message = json.dumps(message)
         self.client_socket.sendall(str.encode(message))
 
 
     
-    def recherche(self):
-        critere = askstring("Input", "Critère de recherche (author, title, year, ...):")
-        search = askstring("Input", "Que voulez vous rechercher ?")
-        message = { 
+    def recherche(self): #fonction qui apl la fonction de recherche sur le serveur
+        critere = askstring("Input", "Critère de recherche (author, title, year, ...):") #ici on demande le critère de la recher
+        search = askstring("Input", "Que voulez vous rechercher ?") #ici on demande la valeur a rechercher
+        message = { #ont met tous ça dans un dico pour l'envoyer en json
             "fonction": "search", 
             "critere": critere, 
             "valeur": search 
             }
        
-        message = json.dumps(message)
-        self.client_socket.sendall(str.encode(message))
+        message = json.dumps(message) #on met en json
+        self.client_socket.sendall(str.encode(message)) #on envoie au serveur
     
-    def addArt(self):
-        auteur= askstring("Input", "Ajouter le nom de l'auteur")
+    def addArt(self):#fonction qui apl l'ajout d'article sur le serveur
+        #demande de toutes les valeur pour créée un artcicle
+        auteur= askstring("Input", "Ajouter le nom de l'auteur") 
         titre = askstring("Input", "Ajouter le titre")
         year = askstring("Input", "Ajouter l'anéee")
         journal = askstring("Input", "Ajouteur le nom du journal dans le quel est publier l'article")
@@ -147,7 +148,7 @@ class MyWindow(Tk): #classe pour l'interface graphique
         pages = askstring("Input", "Ajouter le nombre de page")
         mois= askstring("Input", "Ajouter le mois")
         note= askstring("Input", "Ajouter une note")
-        message = {
+        message = { #on met tous dans un dico pour envoyer en json après
             "fonction": "addArt",
             "author": auteur,
             "title": titre, 
@@ -159,10 +160,10 @@ class MyWindow(Tk): #classe pour l'interface graphique
             "month": mois,
             "notes": note
         }
-        message = json.dumps(message)
+        message = json.dumps(message) 
         self.client_socket.sendall(str.encode(message))
 
-    def addBook(self):
+    def addBook(self): #pareil que la fonction d'avant mais pour les livres
         auteur = askstring("Input", "Ajouter le nom de l'auteur")
         titre = askstring("Input", "Ajouter le titre")
         year = askstring("Input", "Ajouter l'année")
@@ -195,7 +196,7 @@ class MyWindow(Tk): #classe pour l'interface graphique
         message = json.dumps(message)
         self.client_socket.sendall(str.encode(message))
 
-    def quitclient(self):
+    def quitclient(self): #pour fermet la co avec le serv
         message = {"fonction": "quit"}
         message = json.dumps(message)
         self.client_socket.sendall(str.encode(message))
