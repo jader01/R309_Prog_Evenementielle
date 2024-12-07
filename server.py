@@ -171,10 +171,27 @@ def threaded_client(connection):
             connection.sendall(json.dumps(mess).encode('utf-8'))
 
         #Commande add :
+  # Command add :
         if commande["fonction"] == "addArt":
-                newArticle =Article(commande["author"], commande["title"], commande["year"], commande["journal"], commande["volume"], commande["number"], commande["pages"], commande["month"], commande["notes"])
-                mess["resultat"] = [elm.printPubli() for elm in newArticle]
+            author = commande.get("author")
+            title = commande.get("title")
+            year = commande.get("year")
+            journal = commande.get("journal")
+            volume = commande.get("volume")
+            number = commande.get("number")
+            pages = commande.get("pages")
+            month = commande.get("month")
+            notes = commande.get("notes")
+
+            if all([author, title, year, journal, volume, number, pages, month, notes]):
+                newArticle = Article(author, title, year, journal, volume, number, pages, month, notes)
+                publications.append(newArticle)
+                mess["resultat"] = newArticle.printPubli()
                 connection.sendall(json.dumps(mess).encode('utf-8'))
+            else:
+                mess["error"] = "Missing required fields"
+                connection.sendall(json.dumps(mess).encode('utf-8'))
+
                 
                     
         if data == "quit": # Bogue sur le quit !
