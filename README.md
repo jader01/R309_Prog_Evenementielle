@@ -37,7 +37,7 @@ Ce programme gère les fonctionnalités côté serveur. Il est responsable de :
   - Afficher toutes les publications disponibles.  
 - **Connexion TCP/IP** : Gestion des connexions réseau avec les clients via des sockets.  
 
----
+
 
 ### [Client](client.py)  
 
@@ -47,6 +47,7 @@ Ce programme gère l'interface utilisateur et la communication avec le serveur. 
   - Mise à jour des widgets en fonction des événements (résultats de recherche, ajout d'un article).  
 - **Connexion TCP/IP** : Établissement et gestion de la connexion avec le serveur.  
 
+---
 
 ## Comment tester le programme  
 
