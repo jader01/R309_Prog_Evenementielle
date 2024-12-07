@@ -44,7 +44,7 @@ Ce programme gère les fonctionnalités côté serveur. Il est responsable de :
 Ce programme gère l'interface utilisateur et la communication avec le serveur. Il est responsable de :  
 - **Interface graphique avec Tkinter** :  
   - Création de l'interface utilisateur (widgets et conteneurs).  
-  - Mise à jour des widgets en fonction des événements (par exemple, résultats de recherche).  
+  - Mise à jour des widgets en fonction des événements (résultats de recherche, ajout d'un article).  
 - **Connexion TCP/IP** : Établissement et gestion de la connexion avec le serveur.  
 
 ---
