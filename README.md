@@ -27,7 +27,7 @@ L'application à développer permet de consulter et gérer des **références bi
 
 ## Programmes
 
-### [Serveur](serveur.py)  
+### [Serveur](server.py)  
 
 Ce programme gère les fonctionnalités côté serveur. Il est responsable de :  
 - **Gestion des classes** : Définition des objets représentant les publications (par exemple, `Article` et `Book`).  
