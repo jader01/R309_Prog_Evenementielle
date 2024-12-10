@@ -23,7 +23,7 @@ search_global = []
 ###########################################################################
 
 
-class Article:
+class Article: #on definie la class article
     def __init__(self, author, title, year, journal, volume, number, pages, month, notes):
         self.author = author
         self.title = title
@@ -38,7 +38,7 @@ class Article:
        
         search_global.append(self)
 
-    def printPubli(self):
+    def printPubli(self): #fonction affichage de l'article
         print(f"Auteur : {self.author}")
         print(f"Titre : {self.title}")
         print(f"Journal : {self.journal}")
@@ -62,7 +62,9 @@ class Article:
 
  
 
-class Book(Article):
+class Book(Article): #maintenant une class book qui hérite des article
+
+
     def __init__(self, author, title, year, journal, volume, number, pages, month, notes, publisher, series, address, edition):
         super().__init__(author, title, year, journal, volume, number, pages, month, notes)
         self.publisher = publisher
@@ -74,8 +76,8 @@ class Book(Article):
 
         
 
-    def printBook(self):
-        self.printPubli()
+    def printBook(self): #fonction affichage des livres
+        self.printPubli() #associe a la fonction print publi plus haut
         print(f"Éditeur : {self.publisher}")
         print(f"Série : {self.series}")
         print(f"Adresse : {self.address}")
@@ -88,12 +90,14 @@ class Book(Article):
 
 
 
-# Exemple d'utilisation
+# Ajout de certains Article et Livre pour les tests
 publications = [
-Article("Jean Dupont", "Un Article Test", "2023", "Le Monde", 1, 1, "1-10", "Janvier", "ceci est une note"),
-Article("Alice Martin", "Un Second Article", "2022", "Science Today", 2, 3, "15-20", "Février", "Autre note"),
-Article("Stephen King", "Ca", "2004", "Horror", "1", "1", "1-200", "Otobre", "Livre d'horreur"),
-Book("Jean Dupont", "Un Livre Test", "2023", "Le Monde", 1, 1, "1-10", "Janvier", "livre de jean ayant pour titre test", "michel lafon", "libre jeunesse", "Paris", "1ère Édition")
+Article("Jean Dupont", "Un Article Test", "2023", "Le journal", '1', '1', "1-10", "Janvier", "ceci est une note"),
+Article("Dana", "Ferronerie et compagnie", "2022", "Le fere", "2", "3", "15-20", "aout", "un article qui vous surprendra"),
+Article("Lisandru", "Le cinema", "2022", "Ciné and co", "2", "3", "15-20", "Avril", "article parlan de cinema"),
+Book("Stephen King", "Ca", "2004", "Horror", "1", "1", "1-200", "Otobre", "Livre d'horreur", "Horror publisher", "ça 1", "england", "edit"),
+Book("Eichiro Oda", "One piece", "1997", "Shonen Jump", "1", "1", "1-100", "Mars", "Manga", "Shonen", "anime", "place", "kona" ),
+Book("Moon", "The starts", "2006", "test", "1", "1", "1-100", "octobre", "eng book", "book", "test", "test", "test" )
 ]
 
 
@@ -101,7 +105,7 @@ Book("Jean Dupont", "Un Livre Test", "2023", "Le Monde", 1, 1, "1-10", "Janvier"
 #
 #                            Gestion de connexion 
 #                           Serveur TCP Multi Thread
-#                       repris du TD mais avec commentaire
+#               repris du TD mais légèrement modifiera + commentaire
 #
 ###########################################################################
 
@@ -120,11 +124,11 @@ def main():
     ServerSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)#         Permet de réutiliser l'adresse et le port immédiatement après une fermeture du socket
     try:
         ServerSocket.bind((host, port))#                                        Lier l'adresse IP et le port au socket
-    except socket.error as e:
+    except socket.error as e: #                                                 Pour la gestion des erreurs
         print(str(e))
     finally:
         print('En attente de connexion...')
-        ServerSocket.listen(5)#                                                 Le serveur commence à écouter les connexions entrantes, avec une limite de 5 connexions en attente.
+        ServerSocket.listen()#                                                 Le serveur commence à écouter les connexions entrantes, avec une limite de 5 connexions en attente.
     # Attente de connexion + creation des threads :
     while True:
         client, address = ServerSocket.accept() #                               Le serveur attend une connexion entrante, puis l'accepte
@@ -166,17 +170,16 @@ def threaded_client(connection):
         
         #Commande de recherche
         if commande["fonction"] == "search":
-            critere = commande.get("critere")
-            valeur = commande.get("valeur")
-            results = Article.search(critere, valeur)
-            mess["resultat"] = [elm.printPubli() for elm in results]
-            connection.sendall(json.dumps(mess).encode('utf-8'))
+            critere = commande["critere"] #on associe au critère l'entrée du client
+            valeur = commande["valeur"]#pareil que ligne du dessus
+            results = Article.search(critere, valeur)# maintneant on fait une recherche avec la fonction search de la class article
+            mess["resultat"] = [elm.printPubli() for elm in results] #on associe le resultat a une variable
+            connection.sendall(json.dumps(mess).encode('utf-8')) #on renvoie le resultat en json
 
         #Commande add :
-  # Command add :
-        if commande["fonction"] == "addArt":
-            author = commande.get("author")
-            title = commande.get("title")
+        if commande["fonction"] == "addArt": #ajout d'un article
+            author = commande.get("author") #on récupère l'entrée du client et on l'associe a une variable
+            title = commande.get("title") #pareil que au dessus
             year = commande.get("year")
             journal = commande.get("journal")
             volume = commande.get("volume")
@@ -185,19 +188,19 @@ def threaded_client(connection):
             month = commande.get("month")
             notes = commande.get("notes")
 
-            if all([author, title, year, journal, volume, number, pages, month, notes]):
-                newArticle = Article(author, title, year, journal, volume, number, pages, month, notes)
-                publications.append(newArticle)
-                mess["resultat"] = newArticle.printPubli()
-                connection.sendall(json.dumps(mess).encode('utf-8'))
+            if all([author, title, year, journal, volume, number, pages, month, notes]): #ici on verrifie que l'on as bien tous les élément avant de passer a la suite
+                newArticle = Article(author, title, year, journal, volume, number, pages, month, notes)#on les ajoute a la table article
+                publications.append(newArticle)#et a la liste des publications
+                mess["resultat"] = newArticle.printPubli() #puis on associe tous ça au résultat pour l'afficher
+                connection.sendall(json.dumps(mess).encode('utf-8')) # et on l'envoie
             else:
-                mess["error"] = "Missing required fields"
+                mess["error"] = "Il manque des donnée" #sinon on renvoie une ereur (debugage)
                 connection.sendall(json.dumps(mess).encode('utf-8'))      
                     
-        if commande["fonction"] == "quit":
-            connection.close()
+        if commande["fonction"] == "quit": #fermeture de connexion
+            connection.close() #on ferme la co
             clients.remove(connection)
-            nbclients -= 1
+            nbclients -= 1 #on décrémente le nombre de lient
             print('Client déconnecté. Nombre de clients restants : ' + str(nbclients))
             break
 
