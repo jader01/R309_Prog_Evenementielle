@@ -48,7 +48,7 @@ Ce programme gère l'interface utilisateur et la communication avec le serveur. 
 - **Connexion TCP/IP** : Établissement et gestion de la connexion avec le serveur.  
 
 ---
-## Comment tester le programme  [pdf recap test](RUEDA%20LUCANTIS%20R309%20-%20Prog%20evenementiel.pdf)
+## Comment tester le programme  ([pdf recap test](RUEDA%20LUCANTIS%20R309%20-%20Prog%20evenementiel.pdf))
 
 1. **Lancer le serveur :**  
    - Exécutez le fichier [server.py](server.py).  
